@@ -420,6 +420,7 @@ class Generator(keras.utils.Sequence):
         """
         Keras sequence method for generating batches.
         """
+        print(index)
         group = self.groups[index]
         inputs, targets = self.compute_inputs_targets(group)
         return inputs, targets
