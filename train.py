@@ -197,7 +197,7 @@ def create_generators(args):
         from generators.coco import CocoGenerator
         train_generator = CocoGenerator(
             args.coco_path,
-            'train2017',
+            'train',
             misc_effect=misc_effect,
             visual_effect=visual_effect,
             group_method='random',
@@ -206,7 +206,7 @@ def create_generators(args):
 
         validation_generator = CocoGenerator(
             args.coco_path,
-            'val2017',
+            'val',
             shuffle_groups=False,
             **common_args
         )
