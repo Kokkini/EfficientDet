@@ -17,7 +17,7 @@ limitations under the License.
 from generators.common import Generator
 import os
 import numpy as np
-# from pycocotools.coco import COCO
+from pycocotools.coco import COCO
 import cv2
 
 
@@ -43,9 +43,14 @@ def anno_from_json(json_file, data_dir):
         anno = json.load(f)
     for obj in anno:
         obj["file_name"] = os.path.join(data_dir, obj["file_name"])
+        # for a in obj["annotations"]:
+        #     if a["bbox_mode"] == 0:
+        #         a["bbox_mode"] = BoxMode.XYXY_ABS
+        #     else:
+        #         raise ValueError(f"bbox_mode {a['bbox_mode']} not supported")
     return anno
 
-class CocoGenerator(Generator):
+class ExamGenerator(Generator):
     """
     Generate data from the COCO dataset.
     See https://github.com/cocodataset/cocoapi/tree/master/PythonAPI for more information.
@@ -61,12 +66,18 @@ class CocoGenerator(Generator):
         """
         self.data_dir = data_dir #"/content/drive/MyDrive/Colab Notebooks/idris-teacher-assistant"
         self.set_name = set_name #[train, val, test]
+        # if set_name in ['train2017', 'val2017']:
+        #     self.coco = COCO(os.path.join(data_dir, 'annotations', 'instances_' + set_name + '.json'))
+        # else:
+        #     self.coco = COCO(os.path.join(data_dir, 'annotations', 'image_info_' + set_name + '.json'))
+        # self.image_ids = self.coco.getImgIds()
+        
 
         self.load_classes()
         self.anno = anno_from_json(f"{data_dir}/anno/{set_name}_anno.json", f"{data_dir}/detection_data_with_qa_labels")
         self.image_ids = list(range(len(self.anno)))
 
-        super(CocoGenerator, self).__init__(**kwargs)
+        super(ExamGenerator, self).__init__(**kwargs)
 
 
 
@@ -74,8 +85,19 @@ class CocoGenerator(Generator):
         """
         Loads the class to label mapping (and inverse) for COCO.
         """
+        # load class names (name -> label)
+        # categories = self.coco.loadCats(self.coco.getCatIds())
+        # categories.sort(key=lambda x: x['id'])
 
         self.classes = CATEGORY_TO_ID # name to label
+        # self.coco_labels = {}
+        # self.coco_labels_inverse = {}
+        # for c in categories:
+        #     self.coco_labels[len(self.classes)] = c['id']
+        #     self.coco_labels_inverse[c['id']] = len(self.classes)
+        #     self.classes[c['name']] = len(self.classes)
+
+        # also load the reverse (label -> name)
         self.labels = {}
         for key, value in self.classes.items():
             self.labels[value] = key
@@ -137,6 +159,9 @@ class CocoGenerator(Generator):
         Load an image at the image_index.
         Assuming image_index is a number in range(len(self.image_ids))
         """
+        # # {'license': 2, 'file_name': '000000259765.jpg', 'coco_url': 'http://images.cocodataset.org/test2017/000000259765.jpg', 'height': 480, 'width': 640, 'date_captured': '2013-11-21 04:02:31', 'id': 259765}
+        # image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
+        # path = os.path.join(self.data_dir, 'images', self.set_name, image_info['file_name'])
         path = anno[image_index]['file_name']
         image = cv2.imread(path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
