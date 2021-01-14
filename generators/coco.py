@@ -19,6 +19,7 @@ import os
 import numpy as np
 # from pycocotools.coco import COCO
 import cv2
+import json
 
 
 CATEGORIES = [
@@ -137,7 +138,7 @@ class CocoGenerator(Generator):
         Load an image at the image_index.
         Assuming image_index is a number in range(len(self.image_ids))
         """
-        path = anno[image_index]['file_name']
+        path = self.anno[image_index]['file_name']
         image = cv2.imread(path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
@@ -145,7 +146,7 @@ class CocoGenerator(Generator):
     def load_annotations(self, image_index):
         """ Load annotations for an image_index.
         """
-        anno = self.anno[image_index]
+        anno = self.anno[image_index]["annotations"]
         labels = np.array([a["category_id"] for a in anno])
         bboxes = np.array([np.array(a["bbox"]) for a in anno])
         annotations = {'labels': labels, 'bboxes': bboxes}
